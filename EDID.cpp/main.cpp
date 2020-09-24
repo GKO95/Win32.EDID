@@ -18,14 +18,14 @@ int main(int argc, char** argv) {
 	//==============================================================
 	// EXTRACTING MONITOR EDID
 	//==============================================================
-	const LPCWSTR msgCaption = L"EDID Parser";
+	const LPCWSTR msgCaption = L"EDID.cpp";
 
 	DWORD dwSize;	// GUID container size.
 	GUID* ptrGUID = NULL;	// pointer to the GUID container.
 
 	/*
-		IF the function "SetupDiClassGuidsFromNameW()" is passed smaller dwSize
-		than the buffer of GUID parameter, the function returns FALSE while assigning
+		IF THE FUNCTION "SetupDiClassGuidsFromNameW()" is passed buffer of GUID smaller
+		than the very last argument "&dwSize", the function returns FALSE while assigning
 		dwSize a required buffer size to store GUIDs of the specified classes.
 
 		REFERENCE: https://docs.microsoft.com/en-us/windows/win32/api/setupapi/nf-setupapi-setupdiclassguidsfromnamew
