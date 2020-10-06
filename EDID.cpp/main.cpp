@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
 	SP_DEVINFO_DATA devDATA;
 	devDATA.cbSize = sizeof(SP_DEVINFO_DATA);
 
-	BOOL  devFOUND = true;
+	BOOL devFOUND = TRUE;
 	for (DWORD index = 0; devFOUND; index++)
 	{
 		/*
