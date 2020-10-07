@@ -127,9 +127,9 @@ int main(int argc, char** argv) {
 				REFERENCE: https://github.com/GKO95/MFC.CommonRegistry
 			*/
 			BYTE byteBUFFER[128] = { 0 };
-			DWORD dwSize = 128;
-			DWORD dwRegType = REG_BINARY;
-			LRESULT lResult = RegQueryValueExW(devKEY, L"EDID", NULL, &dwRegType, byteBUFFER, &dwSize);
+			DWORD regSize = 128;
+			DWORD regType = REG_BINARY;
+			LRESULT lResult = RegQueryValueExW(devKEY, L"EDID", NULL, &regType, byteBUFFER, &regSize);
 			if (lResult != ERROR_SUCCESS) {
 				std::cout << "ERROR!" << std::endl;
 			}
