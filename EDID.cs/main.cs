@@ -100,7 +100,6 @@ namespace EDID.cs
 				devDATA = new SP_DEVINFO_DATA { cbSize = (DWORD)sizeof(SP_DEVINFO_DATA), ClassGuid = Guid.Empty, DevInst = 0, Reserved = IntPtr.Zero };
 			}
 
-
 			bool devFOUND = true;
 			for (DWORD index = 0; devFOUND; index++)
 			{
