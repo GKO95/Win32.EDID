@@ -7,7 +7,8 @@ namespace EDID.cs
     using DWORD = System.UInt32;
     using HDEVINFO = System.IntPtr;
     using HWND = System.IntPtr;
-    using BOOL = System.Int32;
+    using HKEY = System.IntPtr;
+    using LRESULT = System.Int64;
 
     class Program
     {
@@ -20,16 +21,16 @@ namespace EDID.cs
             const string msgCaption = "EDID.cs";
 
             /*
-		        IF THE FUNCTION "SetupDiClassGuidsFromNameW()" is passed buffer of GUID smaller
-		        than the very last argument "ref dwSize", the function returns FALSE while assigning
-		        dwSize a required buffer size to store GUIDs of the specified classes.
+                IF THE FUNCTION "SetupDiClassGuidsFromNameW()" is passed buffer of GUID smaller
+                than the very last argument "ref dwSize", the function returns FALSE while assigning
+                dwSize a required buffer size to store GUIDs of the specified classes.
 
                 However, C# can only pass variable as ref, and cannot convert null to Guid.
                 Therefore, in C# takes different approach by allowing ptrGUID to have elligible size,
                 but setting `GuidClassListSize` parameter as 0. The function will think buffer doesn't
                 have any size at all, resulting FAILED operation.
 
-		        REFERENCE: https://docs.microsoft.com/en-us/windows/win32/api/setupapi/nf-setupapi-setupdiclassguidsfromnamew
+                REFERENCE: https://docs.microsoft.com/en-us/windows/win32/api/setupapi/nf-setupapi-setupdiclassguidsfromnamew
             */
             DWORD dwSize = 1;
             Guid[] ptrGUID = new Guid[1];
@@ -73,7 +74,7 @@ namespace EDID.cs
                 FLAG: DIGCF_PRESENT - Return only devices that are currently present in a system.
             */
             HDEVINFO devINFO = INVALID_HANDLE_VALUE;
-            devINFO = SetupAPI.SetupDiGetClassDevsW(ref ptrGUID, null, IntPtr.Zero, (uint)DIGCF.PRESENT);
+            devINFO = SetupAPI.SetupDiGetClassDevsW(ref ptrGUID[0], null, IntPtr.Zero, (DWORD)DIGCF.PRESENT);
             if (devINFO == INVALID_HANDLE_VALUE)
             {
                 MessageBox.Show("Failed to retrieve device information of the GUID class.", msgCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -96,7 +97,7 @@ namespace EDID.cs
             */
             SP_DEVINFO_DATA devDATA;
             unsafe { 
-                devDATA = new SP_DEVINFO_DATA { cbSize = (uint)sizeof(SP_DEVINFO_DATA), ClassGuid = Guid.Empty, DevInst = 0, Reserved = IntPtr.Zero };
+                devDATA = new SP_DEVINFO_DATA { cbSize = (DWORD)sizeof(SP_DEVINFO_DATA), ClassGuid = Guid.Empty, DevInst = 0, Reserved = IntPtr.Zero };
             }
 
 
@@ -113,7 +114,39 @@ namespace EDID.cs
                 devFOUND = SetupAPI.SetupDiEnumDeviceInfo(devINFO, index, ref devDATA);
                 if (devFOUND)
                 {
-                    MessageBox.Show("!", msgCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (index != 0) Console.WriteLine();
+                    /*
+                        THE FUNCTION "SetupDiOpenDevRegKey()" returns handle for the registry key (HKEY) of the
+                        devDATA included in the device information set devINFO. Device has two registry key:
+                        hardware (DIREG_DEV) and software (DIREG_DRV) key. EDID can be found in hardware key.
+
+                        * DEV: \REGISTRY\MACHINE\SYSTEM\ControlSet001\Enum\DISPLAY\??????\*&********&*&UID****\Device Parameters
+                               \REGISTRY\MACHINE\SYSTEM\ControlSet001\Enum\DISPLAY\??????\*&********&*&UID****\Device Parameters
+
+                        * DRV: \REGISTRY\MACHINE\SYSTEM\ControlSet001\Control\Class\{????????-****-????-****-????????????}\0001
+                               \REGISTRY\MACHINE\SYSTEM\ControlSet001\Control\Class\{????????-****-????-****-????????????}\0000
+                    */
+                    HKEY devKEY = SetupAPI.SetupDiOpenDevRegKey(devINFO, ref devDATA, (DWORD)DICS_FLAG.GLOBAL, 0, (DWORD)DIREG.DEV, (DWORD)KEY.READ);
+
+                    /*
+                        OPENING and querying registry key has already been dealt in other repository.
+                        Refer to GKO95/MFC.CommonRegistry repository for more information.
+
+                        REFERENCE: https://github.com/GKO95/MFC.CommonRegistry
+                    */
+                    byte[] byteBuffer = new byte[128];
+                    DWORD regSize = 128;
+                    DWORD regType = (DWORD)REG.BINARY;
+                    LRESULT lResult = SetupAPI.RegQueryValueExW(devKEY, "EDID", 0, ref regType, ref byteBuffer[0], ref regSize);
+                    if (lResult != (int)ERROR.SUCCESS)
+                    {
+                        Console.WriteLine("ERROR!");
+                    }
+                    else
+                    {
+                        string hexBuffer = BitConverter.ToString(byteBuffer).Replace("-", " ").ToLower();
+                        Console.Write(hexBuffer + "\n");
+                    }
                 }
             }
         }
@@ -147,7 +180,7 @@ namespace EDID.cs
                 : allows catching error number signaled from SetLastError function of "Kernel32.dll".
                 To catch the errnum, use "Marhsal.GetLastWin32Error()" instead of importing GetLastError from DLL.
         */
-        [DllImport("setupapi.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        [DllImport("setupapi.dll", CharSet = CharSet.Unicode, SetLastError = true, EntryPoint = "SetupDiClassGuidsFromNameW")]
         public static extern bool SetupDiClassGuidsFromNameW(string ClassName, ref Guid ClassGuidList, DWORD ClassGuidListSize, ref DWORD RequiredSize);
 
         /*
@@ -160,16 +193,40 @@ namespace EDID.cs
             * HWND   (= Handle to a WiNDow; thus pointer)                   -> IntPtr
             * DWORD                                                         -> UInt32
         */
-        [DllImport("setupapi.dll", CharSet = CharSet.Unicode)]
-        public static extern HDEVINFO SetupDiGetClassDevsW(ref Guid[] ClassGuid, string Enumerator, HWND hwndParent, DWORD Flags);
+        [DllImport("setupapi.dll", CharSet = CharSet.Unicode, EntryPoint = "SetupDiGetClassDevsW")]
+        public static extern HDEVINFO SetupDiGetClassDevsW(ref Guid ClassGuid, string Enumerator, HWND hwndParent, DWORD Flags);
 
         /*
             * HDEVINFO          -> IntPtr
-            * DWORD             -> Uint32
+            * DWORD             -> UInt32
             * PSP_DEVINFO_DATA  -> ref SP_DEVINFO_DATA
         */
-        [DllImport("setupapi.dll")]
+        [DllImport("setupapi.dll", CharSet = CharSet.Unicode, EntryPoint = "SetupDiEnumDeviceInfo")]
         public static extern bool SetupDiEnumDeviceInfo(HDEVINFO DeviceInfoSet, DWORD MemberIndex, ref SP_DEVINFO_DATA DeviceInfoData);
+
+        /*
+            * HDEVINFO          -> IntPtr
+            * PSP_DEVINFO_DATA  -> ref SP_DEVINFO_DATA
+            * DWORD             -> UInt32
+            * DWORD             -> UInt32
+            * DWORD             -> UInt32
+            * REGSAM            -> UInt32
+        */
+        [DllImport("setupapi.dll", CharSet = CharSet.Unicode, EntryPoint = "SetupDiOpenDevRegKey")]
+        public static extern HKEY SetupDiOpenDevRegKey(HDEVINFO DeviceInfoSet, ref SP_DEVINFO_DATA DeviceInfoData, DWORD Scope, DWORD HwProfile, DWORD KeyType, DWORD samDesired);
+
+        /*
+            * HKEY              -> IntPtr
+            * LPCWSTR           -> string
+            * LPDWORD           -> UInt32
+            * LPDWORD           -> UInt32
+            * LPBYTE            -> UInt32
+            * LPDWORD           -> UInt32
+            However, lpReserved must be set to NULL, thus "ref" keyword is not used.
+        */
+        [DllImport("Advapi32.dll", CharSet = CharSet.Unicode, EntryPoint = "RegQueryValueExW")]
+        public static extern LRESULT RegQueryValueExW(HKEY hKey, string lpValueName, DWORD lpReserved, ref DWORD lpType, ref byte lpData, ref DWORD lpcbData);
+
     }
 
     /*
@@ -200,16 +257,71 @@ namespace EDID.cs
     [Flags]
     public enum ERROR : int
     {
-        INSUFFICIENT_BUFFER = 122,
+        SUCCESS             = 0x0,
+        INVALID_HANDLE      = 0x6,
+        INSUFFICIENT_BUFFER = 0x7A,
     }
 
     [Flags]
-    public enum DIGCF : uint
+    public enum DIGCF : DWORD
     {
         DEFAULT = 0x00000001,
         PRESENT = 0x00000002,
         ALLCLASSES = 0x00000004,
         PROFILE = 0x00000008,
         DEVICEINTERFACE = 0x00000010
+    }
+
+    [Flags]
+    public enum DICS_FLAG : DWORD
+    { 
+        GLOBAL = 0x00000001,
+        CONFIGSPECIFIC = 0x00000002,
+        CONFIGGENERAL = 0x00000004
+    }
+
+    [Flags]
+    public enum DIREG : DWORD
+    { 
+        DEV = 0x00000001,
+        DRV = 0x00000002,
+        BOTH = 0x00000004
+    }
+
+    [Flags]
+    public enum KEY : long
+    { 
+        QUERY_VALUE         = 0x0001,
+        SET_VALUE           = 0x0002,
+        CREATE_SUB_KEY      = 0x0004,
+        ENUMERATE_SUB_KEYS  = 0x0008,
+        NOTIFY              = 0x0010,
+        CREATE_LINK         = 0x0020,
+        WOW64_32KEY         = 0x0200,
+        WOW64_64KEY         = 0x0100,
+        WOW64_RES           = 0x0300,
+        READ                = ((0x00020000L | QUERY_VALUE | ENUMERATE_SUB_KEYS | NOTIFY) & (~0x00100000L)),
+        WRITE               = ((0x00020000L | SET_VALUE | CREATE_SUB_KEY) & (~0x00100000L)),
+        EXECUTE             = ((READ) & (~0x00100000L)),
+        ALL_ACCESS          = ((0x001F0000L | QUERY_VALUE | SET_VALUE | CREATE_SUB_KEY | ENUMERATE_SUB_KEYS | NOTIFY | CREATE_LINK) & (~0x00100000L))
+    }
+
+    [Flags]
+    public enum REG : ulong
+    { 
+        NONE                        = 0ul,
+        SZ                          = 1ul,
+        EXPAND_SZ                   = 2ul,
+        BINARY                      = 3ul,
+        DWORD                       = 4ul,
+        DWORD_LITTLE_ENDIAN         = 4ul,
+        DWORD_BIG_ENDIAN            = 5ul,
+        LINK                        = 6ul,
+        MULTI_SZ                    = 7ul,
+        RESOURCE_LIST               = 8ul,
+        FULL_RESOURCE_DESCRIPTOR    = 9ul,
+        RESOURCE_REQUIREMENTS_LIST  = 10ul,
+        QWORD                       = 11ul,
+        QWORD_LITTLE_ENDIAN         = 11ul
     }
 }
