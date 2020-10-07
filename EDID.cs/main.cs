@@ -181,7 +181,7 @@ namespace EDID.cs
                 To catch the errnum, use "Marhsal.GetLastWin32Error()" instead of importing GetLastError from DLL.
         */
         [DllImport("setupapi.dll", CharSet = CharSet.Unicode, SetLastError = true, EntryPoint = "SetupDiClassGuidsFromNameW")]
-        public static extern bool SetupDiClassGuidsFromNameW(string ClassName, ref Guid ClassGuidList, DWORD ClassGuidListSize, ref DWORD RequiredSize);
+        internal static extern bool SetupDiClassGuidsFromNameW(string ClassName, ref Guid ClassGuidList, DWORD ClassGuidListSize, ref DWORD RequiredSize);
 
         /*
             If the function returns the pointer, C# has IntPtr that can handle a pointer:
@@ -194,7 +194,7 @@ namespace EDID.cs
             * DWORD                                                         -> UInt32
         */
         [DllImport("setupapi.dll", CharSet = CharSet.Unicode, EntryPoint = "SetupDiGetClassDevsW")]
-        public static extern HDEVINFO SetupDiGetClassDevsW(ref Guid ClassGuid, string Enumerator, HWND hwndParent, DWORD Flags);
+        internal static extern HDEVINFO SetupDiGetClassDevsW(ref Guid ClassGuid, string Enumerator, HWND hwndParent, DWORD Flags);
 
         /*
             * HDEVINFO          -> IntPtr
@@ -202,7 +202,7 @@ namespace EDID.cs
             * PSP_DEVINFO_DATA  -> ref SP_DEVINFO_DATA
         */
         [DllImport("setupapi.dll", CharSet = CharSet.Unicode, EntryPoint = "SetupDiEnumDeviceInfo")]
-        public static extern bool SetupDiEnumDeviceInfo(HDEVINFO DeviceInfoSet, DWORD MemberIndex, ref SP_DEVINFO_DATA DeviceInfoData);
+        internal static extern bool SetupDiEnumDeviceInfo(HDEVINFO DeviceInfoSet, DWORD MemberIndex, ref SP_DEVINFO_DATA DeviceInfoData);
 
         /*
             * HDEVINFO          -> IntPtr
@@ -213,7 +213,7 @@ namespace EDID.cs
             * REGSAM            -> UInt32
         */
         [DllImport("setupapi.dll", CharSet = CharSet.Unicode, EntryPoint = "SetupDiOpenDevRegKey")]
-        public static extern HKEY SetupDiOpenDevRegKey(HDEVINFO DeviceInfoSet, ref SP_DEVINFO_DATA DeviceInfoData, DWORD Scope, DWORD HwProfile, DWORD KeyType, DWORD samDesired);
+        internal static extern HKEY SetupDiOpenDevRegKey(HDEVINFO DeviceInfoSet, ref SP_DEVINFO_DATA DeviceInfoData, DWORD Scope, DWORD HwProfile, DWORD KeyType, DWORD samDesired);
 
         /*
             * HKEY              -> IntPtr
@@ -225,7 +225,7 @@ namespace EDID.cs
             However, lpReserved must be set to NULL, thus "ref" keyword is not used.
         */
         [DllImport("Advapi32.dll", CharSet = CharSet.Unicode, EntryPoint = "RegQueryValueExW")]
-        public static extern LRESULT RegQueryValueExW(HKEY hKey, string lpValueName, DWORD lpReserved, ref DWORD lpType, ref byte lpData, ref DWORD lpcbData);
+        internal static extern LRESULT RegQueryValueExW(HKEY hKey, string lpValueName, DWORD lpReserved, ref DWORD lpType, ref byte lpData, ref DWORD lpcbData);
 
     }
 
@@ -238,7 +238,7 @@ namespace EDID.cs
         * Sequential: The members of the object are laid out sequentially, in the order in which they appear when exported to unmanaged memory.
     */
     [StructLayout(LayoutKind.Sequential)]
-    public struct SP_DEVINFO_DATA
+    internal struct SP_DEVINFO_DATA
     {
         public DWORD cbSize;
         public Guid ClassGuid;
@@ -255,7 +255,7 @@ namespace EDID.cs
     //}
 
     [Flags]
-    public enum ERROR : int
+    internal enum ERROR : int
     {
         SUCCESS             = 0x0,
         INVALID_HANDLE      = 0x6,
@@ -263,7 +263,7 @@ namespace EDID.cs
     }
 
     [Flags]
-    public enum DIGCF : DWORD
+    internal enum DIGCF : DWORD
     {
         DEFAULT = 0x00000001,
         PRESENT = 0x00000002,
@@ -273,7 +273,7 @@ namespace EDID.cs
     }
 
     [Flags]
-    public enum DICS_FLAG : DWORD
+    internal enum DICS_FLAG : DWORD
     { 
         GLOBAL = 0x00000001,
         CONFIGSPECIFIC = 0x00000002,
@@ -281,7 +281,7 @@ namespace EDID.cs
     }
 
     [Flags]
-    public enum DIREG : DWORD
+    internal enum DIREG : DWORD
     { 
         DEV = 0x00000001,
         DRV = 0x00000002,
@@ -289,7 +289,7 @@ namespace EDID.cs
     }
 
     [Flags]
-    public enum KEY : long
+    internal enum KEY : long
     { 
         QUERY_VALUE         = 0x0001,
         SET_VALUE           = 0x0002,
@@ -307,7 +307,7 @@ namespace EDID.cs
     }
 
     [Flags]
-    public enum REG : ulong
+    internal enum REG : ulong
     { 
         NONE                        = 0ul,
         SZ                          = 1ul,
