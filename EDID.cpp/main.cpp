@@ -194,7 +194,7 @@ std::wstring GetHKEY(HKEY key)
 				result = func(key, 3, 0, 0, &size);
 				if (result == ((NTSTATUS)0xC0000023L))
 				{
-					// Additional 2-byte for null-terminator in wide-character (which is 2-byte).
+					// Additional 2-byte for extra space when trimming first two insignificant bytes.
 					size = size + 2;
 					wchar_t* buffer = new (std::nothrow) wchar_t[size / sizeof(wchar_t)];
 					if (buffer != NULL)
