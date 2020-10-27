@@ -81,9 +81,9 @@ namespace EDID.cs
 			* HKEY              -> IntPtr
 			* LPCWSTR           -> string
 			* LPDWORD           -> UInt32
-			* LPDWORD           -> UInt32
-			* LPBYTE            -> UInt32
-			* LPDWORD           -> UInt32
+			* LPDWORD           -> ref UInt32
+			* LPBYTE            -> ref UInt32
+			* LPDWORD           -> ref UInt32
 		*/
 		[DllImport("Advapi32.dll", CharSet = CharSet.Unicode, EntryPoint = "RegQueryValueExW")]
 		internal static extern LRESULT RegQueryValueExW(HKEY hKey, string lpValueName, DWORD lpReserved, ref DWORD lpType, ref byte lpData, ref DWORD lpcbData);
