@@ -8,7 +8,7 @@ def main():
 	#==============================================================
 	msgCaption = "EDID.py"
 
-	dwSize = c_ulong()	# GUID container size.
+	dwSize = DWORD()	# GUID container size.
 	ptrGUID = GUID()	# GUID container.
 
 	'''
@@ -49,9 +49,9 @@ def main():
 
 		FLAG: DIGCF_PRESENT - Return only devices that are currently present in a system.
 	'''
-	devINFO = c_void_p(-1)
+	devINFO = HANDLE(-1)
 	devINFO = SetupAPI.SetupDiGetClassDevsW(pointer(ptrGUID[0]), None, None, 2)
-	if (devINFO == c_void_p(-1).value):
+	if (devINFO == HANDLE(-1).value):
 		MessageBoxW(0, "Failed to retrieve device information of the GUID class.", msgCaption, MB_ICONERROR)
 		return 1
 
@@ -64,12 +64,12 @@ def main():
 
 		REFERENCE: https://docs.microsoft.com/en-us/windows/win32/api/setupapi/ns-setupapi-sp_devinfo_data
 	'''
-	devDATA = c_SP_DEVINFO_DATA()
-	devDATA.cbSize = sizeof(c_SP_DEVINFO_DATA)
+	devDATA = SP_DEVINFO_DATA()
+	devDATA.cbSize = sizeof(SP_DEVINFO_DATA)
 
 	devFOUND = True
 	index = 0
-	while(devFOUND):
+	while(devFOUND is True):
 
 		'''
 			THE FUNCTION "SetupDiEnumDeviceInfo()" passes single "index"th device instance to devDATA
@@ -92,8 +92,11 @@ def main():
 				* DRV: \REGISTRY\MACHINE\SYSTEM\ControlSet001\Control\Class\{????????-****-????-****-????????????}\0001
 					   \REGISTRY\MACHINE\SYSTEM\ControlSet001\Control\Class\{????????-****-????-****-????????????}\0000
 			'''
-			devKEY = SetupAPI.SetupDiOpenDevRegKey(devINFO, pointer(devDATA), c_ulong(DIGCF_PRESENT), c_ulong(0), c_ulong(DIREG_DEV), c_ulong(KEY_READ))
-			GetHKEY(devKEY)
+			devKEY = HANDLE(-1)
+			devKEY = SetupAPI.SetupDiOpenDevRegKey(devINFO, pointer(devDATA), DWORD(DICS_FLAG_GLOBAL), DWORD(0), DWORD(DIREG_DEV), DWORD(KEY_READ))
+			print("Registry Key: \"{0}\"".format(GetHKEY(devKEY)))
+			
+			
 			index += 1
 
 
