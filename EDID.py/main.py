@@ -95,7 +95,25 @@ def main():
 			devKEY = HANDLE(-1)
 			devKEY = SetupAPI.SetupDiOpenDevRegKey(devINFO, pointer(devDATA), DWORD(DICS_FLAG_GLOBAL), DWORD(0), DWORD(DIREG_DEV), DWORD(KEY_READ))
 			print("Registry Key: \"{0}\"".format(GetHKEY(devKEY)))
-			
+
+			byteBuffer = (c_ubyte * 128)(0)
+			regSize = DWORD(128)
+			regType = REG_BINARY
+
+			'''
+				OPENING and querying registry key has already been dealt in other repository.
+				Refer to GKO95/MFC.CommonRegistry repository for more information.
+
+				REFERENCE: https://github.com/GKO95/MFC.CommonRegistry
+			'''
+			LRESULT = SetupAPI.RegQueryValueExW(devKEY, "EDID", None, pointer(regType), pointer(byteBuffer), pointer(regSize))
+			if LRESULT != ERROR_SUCCESS:
+				print("ERROR!")
+			else:
+				hexBuffer = list()
+				for i in range(128):
+					hexBuffer.append(hex(byteBuffer[i])[-2:].upper() if len(hex(byteBuffer[i])) == 4 else "0" + hex(byteBuffer[i])[-1].upper())
+				print(" ".join(hexBuffer))
 			
 			index += 1
 

@@ -49,8 +49,9 @@ class SetupAPI:
 	@staticmethod
 	def RegQueryValueExW(hKey, lpValueName, lpReserved, lpType, lpData, lpcbData):
 		__function = windll.Advapi32.RegQueryValueExW
-		__function.argtypes = [HKEY, LPCWSTR, LPDWORD, LPDWORD, LPBYTE, LPDWORD]
+		__function.argtypes = [HKEY, LPCWSTR, LPDWORD, LPDWORD, LPVOID, LPDWORD]
 		__function.restype  = LARGE_INTEGER
+		return __function(hKey, lpValueName, lpReserved, lpType, lpData, lpcbData)
 
 	@staticmethod
 	def NtQueryKey(KeyHandle, KeyInformationClass, KeyInformation, Length, ResultLength):
