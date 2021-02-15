@@ -7,7 +7,7 @@ using HWND = System.IntPtr;
 using HKEY = System.IntPtr;
 using LRESULT = System.Int64;
 
-namespace EDID.cs
+namespace EDID.Framework.cs
 {
 	static class SetupAPI
 	{

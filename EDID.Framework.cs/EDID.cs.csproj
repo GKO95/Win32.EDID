@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{C25D288A-A74C-419C-AA9D-D5D9258ACEE5}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>EDID.cs</RootNamespace>
-    <AssemblyName>EDID.cs</AssemblyName>
+    <RootNamespace>EDID.Framework.cs</RootNamespace>
+    <AssemblyName>EDID.Framework.cs</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

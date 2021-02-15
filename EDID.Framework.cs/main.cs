@@ -7,7 +7,7 @@ using HDEVINFO = System.IntPtr;
 using HKEY = System.IntPtr;
 using LRESULT = System.Int64;
 
-namespace EDID.cs
+namespace EDID.Framework.cs
 {
 	class Program
 	{
@@ -17,7 +17,7 @@ namespace EDID.cs
 			//==============================================================
 			// EXTRACTING MONITOR EDID
 			//==============================================================
-			const string msgCaption = "EDID.cs";
+			const string msgCaption = "EDID.Framework.cs";
 
 			/*
 				IF THE FUNCTION "SetupDiClassGuidsFromNameW()" is passed buffer of GUID smaller
