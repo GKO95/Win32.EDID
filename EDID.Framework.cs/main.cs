@@ -13,7 +13,6 @@ namespace EDID.Framework.cs
 	{
 		static void Main(string[] args)
 		{
-
 			//==============================================================
 			// EXTRACTING MONITOR EDID
 			//==============================================================
