@@ -9,55 +9,64 @@ namespace EDID.Core.cs
     {
         static void Main(string[] args)
         {
-            var displays = new EnumerateDevices(DisplayMonitor.GetDeviceSelector());
+            //==============================================================
+            // EXTRACTING MONITOR EDID
+            //==============================================================
+            var devices = new EnumerateDevices(DisplayMonitor.GetDeviceSelector());
+            devices.EnumDisplay();
         }
     }
 
+    /*
+        THE CURRENT C# project experiments on acquiring EDID using WinRT instead of Win32 API.
+        Meaning, this C# application is only available on Windows 10. For those wishes to
+        execute on Windows 7, 8, and 8.1, please refer to the .NET Framework 4 project.
+    */
     class EnumerateDevices
     {
+        readonly List<DeviceInformation> deviceList = new List<DeviceInformation>();
+
         /*
-            DeviceInterface[0]
-            * Name: "C27F390"
-            * Id: "\\\\?\\DISPLAY#SAM0D32#5&2325f110&0&UID4352#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}"
-            
-            DeviceInterface[1]
-            * Name: "2D FHD LG TV"
-            * Id: "\\\\?\\DISPLAY#GSM59C6#5&2325f110&0&UID4353#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}"
+            THE CONSTRUCTOR automatically enumerates devices upon instantiation.
+            Here, the project separated the class for acquiring EDID due to asynchronous
+            property the WinRT API "FindAllAsync()" and "FromInterfaceIdAsync()" has.
         */
-
-        List<DeviceInformation> deviceList;
-
         public EnumerateDevices(string selector) 
         {
             EnumDevices(selector);
-            EnumDisplay();
         }
 
-        private async void EnumDevices(string selector)
+        /*
+            THE WINRT API "DeviceInformation.FindAllAsync()" finds every active device interface, and
+            return them as a collection of DeviceInformation. When the Advanced Query Syntax(AQS)
+            is given such as "DisplayMonitor.GetDeviceSelector()", the API only enumerates specified DeviceInformation.
+        */
+        private async void EnumDevices(string selector = null)
         {
             var devices = await DeviceInformation.FindAllAsync(selector);
-            deviceList = new List<DeviceInformation>();
 
             if (devices.Count > 0)
-            {
-                for (var i = 0; i < devices.Count; i++)
-                {
+                for (var i = 0; i < devices.Count; i++) 
                     deviceList.Add(devices[i]);
-                }
+        }
+
+        /*
+            GET EACH DisplayMonitor OBJECT from the DeviceInformation of the device interface ID,
+            then acquire its descriptor (in this case, EDID).
+        */
+        public async void EnumDisplay()
+        {
+            for (var index = 0; index < deviceList.Count; index++)
+            {
+                if (index != 0) Console.WriteLine();
+
+                DisplayMonitor display = await DisplayMonitor.FromInterfaceIdAsync(deviceList[index].Id);
+                byte[] EDID = display.GetDescriptor(DisplayMonitorDescriptorKind.Edid);
+
+                string hexBuffer = BitConverter.ToString(EDID).Replace("-", " ").ToLower();
+                Console.WriteLine(string.Format("{0} : {1}", deviceList[index].Name, deviceList[index].Id));
+                Console.Write(hexBuffer + "\n");
             }
-        }
-
-        private async void EnumDisplay()
-        {
-            var display = await DisplayMonitor.FromInterfaceIdAsync(deviceList[0].Id);
-            byte[] EDID = display.GetDescriptor(DisplayMonitorDescriptorKind.Edid);
-            Console.WriteLine(EDID.ToString());
-        }
-
-
-        public DeviceInformation this[int index]
-        {
-            get { return deviceList[index]; }
         }
     }
 }
