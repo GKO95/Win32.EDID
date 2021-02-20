@@ -46,6 +46,7 @@ class SetupAPI:
 		__function.restype  = HKEY
 		return __function(DeviceInfoSet, DeviceInfoData, Scope, HwProfile, KeyType, samDesired)
 
+class Advapi32:
 	@staticmethod
 	def RegQueryValueExW(hKey, lpValueName, lpReserved, lpType, lpData, lpcbData):
 		__function = windll.Advapi32.RegQueryValueExW
@@ -53,6 +54,7 @@ class SetupAPI:
 		__function.restype  = LARGE_INTEGER
 		return __function(hKey, lpValueName, lpReserved, lpType, lpData, lpcbData)
 
+class Ntdll:
 	@staticmethod
 	def NtQueryKey(KeyHandle, KeyInformationClass, KeyInformation, Length, ResultLength):
 		__function = windll.ntdll.NtQueryKey

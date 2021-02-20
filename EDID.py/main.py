@@ -106,7 +106,7 @@ def main():
 
 				REFERENCE: https://github.com/GKO95/MFC.CommonRegistry
 			'''
-			LRESULT = SetupAPI.RegQueryValueExW(devKEY, "EDID", None, pointer(regType), pointer(byteBuffer), pointer(regSize))
+			LRESULT = Advapi32.RegQueryValueExW(devKEY, "EDID", None, pointer(regType), pointer(byteBuffer), pointer(regSize))
 			if LRESULT != ERROR_SUCCESS:
 				print("ERROR!")
 			else:
