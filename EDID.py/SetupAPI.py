@@ -74,10 +74,10 @@ def GetHKEY(key):
 			registry key. However, since the buffer size is smaller, required size of the buffer will
 			be assigned to "size" variable, while returning STATUS_BUFFER_TOO_SMALL.
 		'''
-		result = SetupAPI.NtQueryKey(key, 3, None, 0, pointer(size))
+		result = Ntdll.NtQueryKey(key, 3, None, 0, pointer(size))
 		if result == 0xC0000023:
 			buff = (WCHAR * size.value)()
-			result = SetupAPI.NtQueryKey(key, 3, pointer(buff), size, pointer(size))
+			result = Ntdll.NtQueryKey(key, 3, pointer(buff), size, pointer(size))
 			if result == 0x00000000:
 				for i in range(2,size.value):
 					keyPath += buff[i]
