@@ -96,8 +96,8 @@ def main():
 			devKEY = SetupAPI.SetupDiOpenDevRegKey(devINFO, pointer(devDATA), DWORD(DICS_FLAG_GLOBAL), DWORD(0), DWORD(DIREG_DEV), DWORD(KEY_READ))
 			print("Registry Key: \"{0}\"".format(GetHKEY(devKEY)))
 
-			byteBuffer = (c_ubyte * 128)(0)
-			regSize = DWORD(128)
+			byteBuffer = (c_ubyte * 256)(0)
+			regSize = DWORD(byteBuffer._length_)
 			regType = REG_BINARY
 
 			'''
@@ -108,10 +108,10 @@ def main():
 			'''
 			LRESULT = Advapi32.RegQueryValueExW(devKEY, "EDID", None, pointer(regType), pointer(byteBuffer), pointer(regSize))
 			if LRESULT != ERROR_SUCCESS:
-				print("ERROR!")
+				print(f"!ERROR: {LRESULT}")
 			else:
 				hexBuffer = list()
-				for i in range(128):
+				for i in range(byteBuffer._length_):
 					hexBuffer.append(hex(byteBuffer[i])[-2:].upper() if len(hex(byteBuffer[i])) == 4 else "0" + hex(byteBuffer[i])[-1].upper())
 				print(" ".join(hexBuffer))
 			
@@ -120,4 +120,3 @@ def main():
 
 if __name__ == "__main__":
 	main()
-	input("\nPress Enter to exit.")

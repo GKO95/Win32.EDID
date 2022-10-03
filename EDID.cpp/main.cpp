@@ -123,19 +123,17 @@ int main(int argc, char** argv) {
 			/*
 				OPENING and querying registry key has already been dealt in other repository.
 				Refer to GKO95/MFC.CommonRegistry repository for more information.
-
-				REFERENCE: https://github.com/GKO95/MFC.CommonRegistry
 			*/
-			BYTE byteBUFFER[128] = { 0 };
-			DWORD regSize = 128;
+			BYTE byteBUFFER[256] = { 0 };
+			DWORD regSize = sizeof(byteBUFFER);
 			DWORD regType = REG_BINARY;
 			LRESULT lResult = RegQueryValueExW(devKEY, L"EDID", NULL, &regType, byteBUFFER, &regSize);
 			if (lResult != ERROR_SUCCESS) {
-				std::cout << "ERROR!" << std::endl;
+				std::cout << "!ERROR: " << lResult << std::endl;
 			}
 			else
 			{
-				for (BYTE i = 0; i < 128; i++)
+				for (short i = 0; i < sizeof(byteBUFFER); i++)
 					std::cout << std::hex << std::setfill('0') << std::setw(2) << int(byteBUFFER[i]) << " ";
 				std::cout << std::endl;
 			}

@@ -133,13 +133,13 @@ namespace EDID.Framework.cs
 
 						REFERENCE: https://github.com/GKO95/MFC.CommonRegistry
 					*/
-					byte[] byteBuffer = new byte[128];
-					DWORD regSize = 128;
+					byte[] byteBuffer = new byte[256];
+					DWORD regSize = Convert.ToUInt32(byteBuffer.Length);
 					DWORD regType = (DWORD)REG.BINARY;
 					LRESULT lResult = SetupAPI.RegQueryValueExW(devKEY, "EDID", 0, ref regType, ref byteBuffer[0], ref regSize);
 					if (lResult != (int)ERROR.SUCCESS)
 					{
-						Console.WriteLine("ERROR!");
+						Console.WriteLine($"!ERROR: {lResult}");
 					}
 					else
 					{
