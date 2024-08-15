@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
 	//==============================================================
 	// EXTRACTING MONITOR EDID
 	//==============================================================
-	const LPCWSTR msgCaption = L"EDID.cpp";
+	const LPCWSTR msgCaption = L"EDID.Win32";
 
 	DWORD dwSize;	// GUID container size.
 	GUID* ptrGUID = NULL;	// pointer to the GUID container.
