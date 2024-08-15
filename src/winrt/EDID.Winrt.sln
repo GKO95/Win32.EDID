@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31005.135
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35201.131
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EDID.Core.cs", "EDID.Core.cs.csproj", "{0A568E28-6F4F-46D6-8BB0-D1F2E68C03A8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EDID.Winrt", "EDID.Winrt.csproj", "{0A568E28-6F4F-46D6-8BB0-D1F2E68C03A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

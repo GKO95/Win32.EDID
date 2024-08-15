@@ -1,0 +1,15 @@
+﻿<!-- 
+  Call Windows Runtime APIs in desktop apps
+  : This modification is to import WinRT API from UWP to this console application (target platform: Windows 11).
+  
+  1. Change the Project SDK to <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  2. Select target framework version that supports WinRT API. In this case, the target framework is net8.0-windows10.0.22000.0.
+  
+  Reference: https://docs.microsoft.com/en-us/windows/apps/desktop/modernize/desktop-to-uwp-enhance
+-->
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows10.0.22000.0</TargetFramework>
+  </PropertyGroup>
+</Project>
