@@ -7,7 +7,7 @@ using HDEVINFO = System.IntPtr;
 using HKEY = System.IntPtr;
 using LRESULT = System.Int64;
 
-namespace EDID.Framework.cs
+namespace EDID.Csharp
 {
 	class Program
 	{
@@ -16,7 +16,7 @@ namespace EDID.Framework.cs
 			//==============================================================
 			// EXTRACTING MONITOR EDID
 			//==============================================================
-			const string msgCaption = "EDID.Framework.cs";
+			const string msgCaption = "EDID.Csharp";
 
 			/*
 				IF THE FUNCTION "SetupDiClassGuidsFromNameW()" is passed buffer of GUID smaller
@@ -32,7 +32,7 @@ namespace EDID.Framework.cs
 			*/
 			DWORD dwSize = 1;
 			Guid[] ptrGUID = new Guid[1];
-			bool bResult = SetupAPI.SetupDiClassGuidsFromNameW("Monitor", ref ptrGUID[0], 0, ref dwSize);
+			bool bResult = SetupApi.SetupDiClassGuidsFromNameW("Monitor", ref ptrGUID[0], 0, ref dwSize);
 			if (bResult == false)
 			{
 				if (Marshal.GetLastWin32Error() == (int)ERROR.INSUFFICIENT_BUFFER)
@@ -46,7 +46,7 @@ namespace EDID.Framework.cs
 						REFERENCE: https://docs.microsoft.com/en-us/windows-hardware/drivers/install/system-defined-device-setup-classes-available-to-vendors
 					*/
 					ptrGUID = new Guid[dwSize];
-					bResult = SetupAPI.SetupDiClassGuidsFromNameW("Monitor", ref ptrGUID[0], dwSize, ref dwSize);
+					bResult = SetupApi.SetupDiClassGuidsFromNameW("Monitor", ref ptrGUID[0], dwSize, ref dwSize);
 					if (!bResult)
 					{
 						MessageBox.Show("Unable to retrieve GUID of the specified class.", msgCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -72,7 +72,7 @@ namespace EDID.Framework.cs
 				FLAG: DIGCF_PRESENT - Return only devices that are currently present in a system.
 			*/
 			HDEVINFO devINFO = INVALID_HANDLE_VALUE;
-			devINFO = SetupAPI.SetupDiGetClassDevsW(ref ptrGUID[0], null, IntPtr.Zero, (DWORD)DIGCF.PRESENT);
+			devINFO = SetupApi.SetupDiGetClassDevsW(ref ptrGUID[0], null, IntPtr.Zero, (DWORD)DIGCF.PRESENT);
 			if (devINFO == INVALID_HANDLE_VALUE)
 			{
 				MessageBox.Show("Failed to retrieve device information of the GUID class.", msgCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -109,7 +109,7 @@ namespace EDID.Framework.cs
 
 					REFERENCE: https://docs.microsoft.com/en-us/windows/win32/api/setupapi/nf-setupapi-setupdienumdeviceinfo
 				*/
-				devFOUND = SetupAPI.SetupDiEnumDeviceInfo(devINFO, index, ref devDATA);
+				devFOUND = SetupApi.SetupDiEnumDeviceInfo(devINFO, index, ref devDATA);
 				if (devFOUND)
 				{
 					if (index != 0) Console.WriteLine();
@@ -124,7 +124,7 @@ namespace EDID.Framework.cs
 						* DRV: \REGISTRY\MACHINE\SYSTEM\ControlSet001\Control\Class\{????????-****-????-****-????????????}\0001
 							   \REGISTRY\MACHINE\SYSTEM\ControlSet001\Control\Class\{????????-****-????-****-????????????}\0000
 					*/
-					HKEY devKEY = SetupAPI.SetupDiOpenDevRegKey(devINFO, ref devDATA, (DWORD)DICS_FLAG.GLOBAL, 0, (DWORD)DIREG.DEV, (DWORD)KEY.READ);
+					HKEY devKEY = SetupApi.SetupDiOpenDevRegKey(devINFO, ref devDATA, (DWORD)DICS_FLAG.GLOBAL, 0, (DWORD)DIREG.DEV, (DWORD)KEY.READ);
 					Console.WriteLine("Registry Key: \"{0}\"", GetHKEY(devKEY));
 
 					/*
@@ -136,7 +136,7 @@ namespace EDID.Framework.cs
 					byte[] byteBuffer = new byte[256];
 					DWORD regSize = Convert.ToUInt32(byteBuffer.Length);
 					DWORD regType = (DWORD)REG.BINARY;
-					LRESULT lResult = SetupAPI.RegQueryValueExW(devKEY, "EDID", 0, ref regType, ref byteBuffer[0], ref regSize);
+					LRESULT lResult = SetupApi.RegQueryValueExW(devKEY, "EDID", 0, ref regType, ref byteBuffer[0], ref regSize);
 					if (lResult != (int)ERROR.SUCCESS)
 					{
 						Console.WriteLine($"!ERROR: {lResult}");
@@ -165,13 +165,13 @@ namespace EDID.Framework.cs
 					registry key. However, since the buffer size is smaller, required size of the buffer will
 					be assigned to "size" variable, while returning STATUS_BUFFER_TOO_SMALL.
 				*/
-				result = SetupAPI.NtQueryKey(key, 3, ref buff[0], 0 , ref size);
+				result = SetupApi.NtQueryKey(key, 3, ref buff[0], 0 , ref size);
 				if (result == ((DWORD)0xC0000023L))
 				{
 					// Additional 2-byte for extra space when trimming first two insignificant bytes.
 					size += 2;
 					buff = new char[size];
-					result = SetupAPI.NtQueryKey(key, 3, ref buff[0], size, ref size);
+					result = SetupApi.NtQueryKey(key, 3, ref buff[0], size, ref size);
 					if (result == ((DWORD)0x00000000L))
 					{
 						keyPath = new string(buff);

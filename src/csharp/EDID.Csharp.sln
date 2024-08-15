@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30517.126
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35201.131
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EDID.Framework.cs", "EDID.Framework.cs.csproj", "{C25D288A-A74C-419C-AA9D-D5D9258ACEE5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EDID.Csharp", "EDID.Csharp.csproj", "{C25D288A-A74C-419C-AA9D-D5D9258ACEE5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
