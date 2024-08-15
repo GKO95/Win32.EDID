@@ -9,7 +9,7 @@ using LRESULT = System.Int64;
 
 namespace EDID.Csharp
 {
-    static class SetupApi
+    static class SetupAPI
     {
         /*
             DllImpotAttribute allows using function implemented in DLL on C# source code.
