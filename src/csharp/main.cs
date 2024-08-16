@@ -34,9 +34,10 @@ namespace EDID.Csharp
 			DWORD dwSize = 0;
 			Guid[] ptrGUID = new Guid[1];
 			bool bResult = SetupAPI.SetupDiClassGuidsFromNameW("Monitor", ref ptrGUID[0], 0, ref dwSize);
+			int dwLastWin32Error = Marshal.GetLastWin32Error();
 			if (bResult == false)
 			{
-				if (Marshal.GetLastWin32Error() == (int)ERROR.INSUFFICIENT_BUFFER)
+				if (dwLastWin32Error == (int)ERROR.INSUFFICIENT_BUFFER)
 				{
 					/*
 						IN SECOND ATTEMPT, now that the required buffer size is known,
