@@ -1,5 +1,5 @@
 from ctypes import *
-from setupapi import *
+from win32api import *
 
 def main():
 
@@ -36,11 +36,11 @@ def main():
                 #IF somehow failed to retrieve the GUID, alert a message box.'''
                 MessageBoxW(0, "Unable to retrieve GUID of the specified class.", msgCaption, MB_ICONERROR)
                 return 1
-            else:
-                # HOWEVER, in case the "SetupDiClassGuidsFromNameW()" failed to return
-                # required buffer size due to a certain matter, alert a message box.
-                MessageBoxW(0, "Unable to retrieve GUID of the specified class.", msgCaption, MB_ICONERROR)
-                return 1
+        else:
+            # HOWEVER, in case the "SetupDiClassGuidsFromNameW()" failed to return
+            # required buffer size due to a certain matter, alert a message box.
+            MessageBoxW(0, "Unable to retrieve GUID of the specified class.", msgCaption, MB_ICONERROR)
+            return 1
 
     '''
         GET ALL THE device information of the "Monitor" GUID that are currently presented
@@ -93,7 +93,7 @@ def main():
                        \REGISTRY\MACHINE\SYSTEM\ControlSet001\Control\Class\{????????-****-????-****-????????????}\0000
             '''
             devKEY = HANDLE(-1)
-            devKEY = SetupAPI.SetupDiOpenDevRegKey(devINFO, pointer(devDATA), DWORD(DICS_FLAG_GLOBAL), DWORD(0), DWORD(DIREG_DEV), DWORD(KEY_READ))
+            devKEY = SetupAPI.SetupDiOpenDevRegKey(devINFO, pointer(devDATA), DWORD(SetupAPI.DICS_FLAG_GLOBAL), DWORD(0), DWORD(SetupAPI.DIREG_DEV), DWORD(KEY_READ))
             print("Registry Key: \"{0}\"".format(GetHKEY(devKEY)))
 
             byteBuffer = (c_ubyte * 256)(0)

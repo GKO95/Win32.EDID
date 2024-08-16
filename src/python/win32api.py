@@ -45,6 +45,20 @@ class SetupAPI:
         __function.argtypes = [HANDLE, POINTER(SP_DEVINFO_DATA), DWORD, DWORD, DWORD, DWORD]
         __function.restype  = HKEY
         return __function(DeviceInfoSet, DeviceInfoData, Scope, HwProfile, KeyType, samDesired)
+    
+    DIGCF_DEFAULT               = 0x00000000
+    DIGCF_PRESENT               = 0x00000002
+    DIGCF_ALLCLASSES            = 0x00000004
+    DIGCF_PROFILE               = 0x00000008
+    DIGCF_DEVICEINTERFACE       = 0x00000010
+
+    DICS_FLAG_GLOBAL            = 0x00000001
+    DICS_FLAG_CONFIGSPECIFIC    = 0x00000002
+    DICS_FLAG_CONFIGGENERAL     = 0x00000004
+
+    DIREG_DEV                   = 0x00000001
+    DIREG_DRV                   = 0x00000002
+    DIREG_BOTH                  = 0x00000004
 
 class Advapi32:
     @staticmethod
@@ -89,20 +103,6 @@ def MessageBoxW(hWnd, lpText, lpCaption, uType):
 ERROR_SUCCESS               = 0x0
 ERROR_INVALID_HANDLE        = 0x6
 ERROR_INSUFFICIENT_BUFFER   = 0x7A
-
-DIGCF_DEFAULT               = 0x00000000
-DIGCF_PRESENT               = 0x00000002
-DIGCF_ALLCLASSES            = 0x00000004
-DIGCF_PROFILE               = 0x00000008
-DIGCF_DEVICEINTERFACE       = 0x00000010
-
-DICS_FLAG_GLOBAL            = 0x00000001
-DICS_FLAG_CONFIGSPECIFIC    = 0x00000002
-DICS_FLAG_CONFIGGENERAL     = 0x00000004
-
-DIREG_DEV                   = 0x00000001
-DIREG_DRV                   = 0x00000002
-DIREG_BOTH                  = 0x00000004
 
 KEY_QUERY_VALUE             = 0x0001
 KEY_SET_VALUE               = 0x0002
