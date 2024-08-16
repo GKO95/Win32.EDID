@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Win32;
 
-using DWORD = System.UInt32;
+using DWORD    = System.UInt32;
 using HDEVINFO = System.IntPtr;
-using HKEY = System.IntPtr;
-using LRESULT = System.Int64;
+using HKEY     = System.IntPtr;
+using LRESULT  = System.Int64;
 
 namespace EDID.Csharp
 {
@@ -30,7 +31,7 @@ namespace EDID.Csharp
 
 				REFERENCE: https://docs.microsoft.com/en-us/windows/win32/api/setupapi/nf-setupapi-setupdiclassguidsfromnamew
 			*/
-			DWORD dwSize = 1;
+			DWORD dwSize = 0;
 			Guid[] ptrGUID = new Guid[1];
 			bool bResult = SetupAPI.SetupDiClassGuidsFromNameW("Monitor", ref ptrGUID[0], 0, ref dwSize);
 			if (bResult == false)
@@ -72,7 +73,7 @@ namespace EDID.Csharp
 				FLAG: DIGCF_PRESENT - Return only devices that are currently present in a system.
 			*/
 			HDEVINFO devINFO = INVALID_HANDLE_VALUE;
-			devINFO = SetupAPI.SetupDiGetClassDevsW(ref ptrGUID[0], null, IntPtr.Zero, (DWORD)DIGCF.PRESENT);
+			devINFO = SetupAPI.SetupDiGetClassDevsW(ref ptrGUID[0], null, IntPtr.Zero, (DWORD)SetupAPI.DIGCF.PRESENT);
 			if (devINFO == INVALID_HANDLE_VALUE)
 			{
 				MessageBox.Show("Failed to retrieve device information of the GUID class.", msgCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -94,9 +95,9 @@ namespace EDID.Csharp
 
 				REFERENCE: https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/unsafe
 			*/
-			SP_DEVINFO_DATA devDATA;
+			SetupAPI.SP_DEVINFO_DATA devDATA;
 			unsafe { 
-				devDATA = new SP_DEVINFO_DATA { cbSize = (DWORD)sizeof(SP_DEVINFO_DATA), ClassGuid = Guid.Empty, DevInst = 0, Reserved = IntPtr.Zero };
+				devDATA = new SetupAPI.SP_DEVINFO_DATA { cbSize = (DWORD)sizeof(SetupAPI.SP_DEVINFO_DATA), ClassGuid = Guid.Empty, DevInst = 0, Reserved = IntPtr.Zero };
 			}
 
 			bool devFOUND = true;
@@ -124,7 +125,7 @@ namespace EDID.Csharp
 						* DRV: \REGISTRY\MACHINE\SYSTEM\ControlSet001\Control\Class\{????????-****-????-****-????????????}\0001
 							   \REGISTRY\MACHINE\SYSTEM\ControlSet001\Control\Class\{????????-****-????-****-????????????}\0000
 					*/
-					HKEY devKEY = SetupAPI.SetupDiOpenDevRegKey(devINFO, ref devDATA, (DWORD)DICS_FLAG.GLOBAL, 0, (DWORD)DIREG.DEV, (DWORD)KEY.READ);
+					HKEY devKEY = SetupAPI.SetupDiOpenDevRegKey(devINFO, ref devDATA, (DWORD)SetupAPI.DICS_FLAG.GLOBAL, 0, (DWORD)SetupAPI.DIREG.DEV, (DWORD)KEY.READ);
 					Console.WriteLine("Registry Key: \"{0}\"", GetHKEY(devKEY));
 
 					/*
@@ -136,7 +137,7 @@ namespace EDID.Csharp
 					byte[] byteBuffer = new byte[256];
 					DWORD regSize = Convert.ToUInt32(byteBuffer.Length);
 					DWORD regType = (DWORD)REG.BINARY;
-					LRESULT lResult = SetupAPI.RegQueryValueExW(devKEY, "EDID", 0, ref regType, ref byteBuffer[0], ref regSize);
+					LRESULT lResult = Advapi32.RegQueryValueExW(devKEY, "EDID", 0, ref regType, ref byteBuffer[0], ref regSize);
 					if (lResult != (int)ERROR.SUCCESS)
 					{
 						Console.WriteLine($"!ERROR: {lResult}");
@@ -165,13 +166,13 @@ namespace EDID.Csharp
 					registry key. However, since the buffer size is smaller, required size of the buffer will
 					be assigned to "size" variable, while returning STATUS_BUFFER_TOO_SMALL.
 				*/
-				result = SetupAPI.NtQueryKey(key, 3, ref buff[0], 0 , ref size);
+				result = Ntdll.NtQueryKey(key, 3, ref buff[0], 0 , ref size);
 				if (result == ((DWORD)0xC0000023L))
 				{
 					// Additional 2-byte for extra space when trimming first two insignificant bytes.
 					size += 2;
 					buff = new char[size];
-					result = SetupAPI.NtQueryKey(key, 3, ref buff[0], size, ref size);
+					result = Ntdll.NtQueryKey(key, 3, ref buff[0], size, ref size);
 					if (result == ((DWORD)0x00000000L))
 					{
 						keyPath = new string(buff);
